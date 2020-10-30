@@ -1,0 +1,10 @@
+html,body,#app{
+    height: 100%;
+}
+
+// css3盒子模型
+*,
+*::before,
+*::after{
+    box-sizing: border-box;
+}
