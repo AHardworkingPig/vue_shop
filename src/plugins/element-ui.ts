@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import {
     Button, Form, Input, FormItem, Message, Container,
     Header, Aside, Main, Submenu, Menu, MenuItem,
@@ -6,7 +7,6 @@ import {
     Dialog, MessageBox,
 } from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import Vue from 'vue';
 
 Vue.use(Button);
 Vue.use(Form);
@@ -31,6 +31,7 @@ Vue.use(Tooltip);
 Vue.use(Pagination);
 Vue.use(Dialog);
 
-
-Vue.prototype.$confirm = MessageBox;
 Vue.prototype.$message = Message;
+Vue.prototype.$alert = MessageBox;
+Vue.prototype.$confirm = MessageBox;
+Vue.prototype.$prompt = MessageBox;

@@ -173,6 +173,30 @@
         <el-button type="primary" @click="editUserInfo">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 删除用户的对话框 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="deleteDialogVisible"
+      width="40%"
+      top="30vh"
+      @close="deleteDialogClosed"
+    >
+      <!-- 内容主体 -->
+      <span class="delete-dialog-main"
+        ><i class="el-icon-warning"></i><span>你确定要删除此用户吗?</span></span
+      >
+
+      <!-- 底部区 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deleteDialogVisible = false" size="mini"
+          >取 消</el-button
+        >
+        <el-button type="primary" @click="deleteUserById" size="mini"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
   </section>
 </template>
 
@@ -195,6 +219,20 @@
   .users-pagination {
     margin-top: 20px;
     margin-bottom: 20px;
+  }
+
+  .delete-dialog-main {
+    display: flex;
+    align-items: center;
+
+    i {
+      color: #e6a23c;
+      margin-right: 10px;
+
+      &::before {
+        font-size: 30px;
+      }
+    }
   }
 }
 </style>
@@ -313,6 +351,8 @@ export default Vue.extend({
           { validator: checkMobile, trigger: 'blur' },
         ],
       },
+      // 删除用户对话框是否显示
+      deleteDialogVisible: false,
     };
   },
   created() {
@@ -342,9 +382,9 @@ export default Vue.extend({
     },
     // 监听switch 状态改变
     async userStateChanged(userinfo: any): Promise<any> {
-      const result = // @ts-ignore
-      (await this.$http.put(`users/${userinfo.id}/state/${userinfo.mg_state}`))
-        .data;
+      const result = ( // @ts-ignore
+        await this.$http.put(`users/${userinfo.id}/state/${userinfo.mg_state}`)
+      ).data;
 
       if (result.meta.status !== 200) {
         userinfo.mg_state = !userinfo.mg_state;
@@ -430,30 +470,13 @@ export default Vue.extend({
     },
     // 删除用户
     async deleteUserById(id: number) {
-      const confirmOptions: ElMessageBoxOptions = {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      };
-
-      const confirmResult = await this.$confirm(
-        '此操作将永久删除该用户, 是否继续?dwafwf',
-        '提示fafqa',
-        confirmOptions // tslint:disable-line
-      ).catch((err) => err);
-
-      console.log(confirmResult);
-
-      if (confirmResult !== 'confirm') {
-        return this.$message({
-          type: 'info',
-          message: '已取消删除',
-        });
-      }
-
+      this.deleteDialogVisible = true;
+    },
+    // 删除用户关闭去前的回调
+    deleteDialogClosed() {
       this.$message({
-        type: 'success',
-        message: '删除成功!',
+        type: 'info',
+        message: '已取消删除',
       });
     },
   },
