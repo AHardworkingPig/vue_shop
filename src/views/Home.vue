@@ -6,12 +6,12 @@
           <img src="../assets/images/logo.png" alt="logo" />
           <span>Vue电商后台管理系统</span>
         </div>
-        <el-button @click="logout" type="warning" round>退出</el-button>
+        <el-button @click="logout" type="info" round>退出</el-button>
       </el-header>
       <el-container>
         <!-- 侧边栏 -->
         <el-aside
-          :width="isCollapse ? '64px' : '200px'"
+          :width="isCollapse ? '64px' : '220px'"
           class="home-aside-style"
         >
           <!-- 折叠 -->
@@ -19,9 +19,9 @@
             >&lt; &gt;</el-button
           >
           <el-menu
-            background-color="#AC58FA"
-            text-color="#fff"
-            active-text-color="#58FAF4"
+            background-color="#263238"
+            text-color="#ffffff"
+            active-text-color="#2196F3"
             unique-opened
             :collapse="isCollapse"
             :collapse-transition="false"
@@ -76,7 +76,7 @@
     height: 100%;
 
     .el-header {
-      background-color: #ac58fa;
+      background-color: #263238;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -95,7 +95,7 @@
 
         span {
           margin-left: 5px;
-          color: white;
+          color: rgb(255, 255, 255);
           letter-spacing: 1px;
           font-size: 18px;
         }
@@ -103,8 +103,10 @@
     }
 
     .home-aside-style {
-      background-color: #ac58fa;
-      overflow: hidden;
+      background-color: #263238;
+      height: calc(100vh - 60px);
+      overflow-x: hidden;
+      overflow-y: auto;
 
       .toggle-btn {
         width: 100%;
@@ -115,7 +117,7 @@
         justify-content: center;
 
         &:hover {
-          color: white;
+          color: rgb(255, 255, 255);
         }
       }
 
@@ -133,7 +135,8 @@
     .el-main {
       background-color: ghostwhite;
       max-height: calc(100vh - 60px);
-      overflow: auto;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
   }
 }

@@ -77,7 +77,7 @@
               type="danger"
               icon="el-icon-delete"
               size="mini"
-              @click="deleteUserById(scope.row.id)"
+              @click="showDeleteDialog(scope.row.id)"
             ></el-button>
           </el-tooltip>
           <!-- 分配角色 -->
@@ -178,9 +178,10 @@
     <el-dialog
       title="提示"
       :visible.sync="deleteDialogVisible"
-      width="40%"
+      width="35%"
       top="30vh"
       @close="deleteDialogClosed"
+      class="delete-dialog"
     >
       <!-- 内容主体 -->
       <span class="delete-dialog-main"
@@ -202,8 +203,6 @@
 
 <style lang="scss" scoped>
 .users {
-  height: 100%;
-
   .u-card {
     margin-top: 30px;
     margin-bottom: 30px;
@@ -221,16 +220,18 @@
     margin-bottom: 20px;
   }
 
-  .delete-dialog-main {
-    display: flex;
-    align-items: center;
+  .delete-dialog {
+    .delete-dialog-main {
+      display: flex;
+      align-items: center;
 
-    i {
-      color: #e6a23c;
-      margin-right: 10px;
+      i {
+        color: #e6a23c;
+        margin-right: 10px;
 
-      &::before {
-        font-size: 30px;
+        &::before {
+          font-size: 30px;
+        }
       }
     }
   }
@@ -249,10 +250,15 @@
     }
   }
 }
+
+.delete-dialog {
+  .el-dialog__body {
+    padding: 10px 20px !important;
+  }
+}
 </style>
 
 <script lang="ts">
-import { ElMessageBoxOptions } from 'element-ui/types/message-box';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -353,6 +359,8 @@ export default Vue.extend({
       },
       // 删除用户对话框是否显示
       deleteDialogVisible: false,
+      // 要删除的用户id
+      deleteUserId: 0,
     };
   },
   created() {
@@ -382,9 +390,9 @@ export default Vue.extend({
     },
     // 监听switch 状态改变
     async userStateChanged(userinfo: any): Promise<any> {
-      const result = ( // @ts-ignore
-        await this.$http.put(`users/${userinfo.id}/state/${userinfo.mg_state}`)
-      ).data;
+      const result = // @ts-ignore
+      (await this.$http.put(`users/${userinfo.id}/state/${userinfo.mg_state}`))
+        .data;
 
       if (result.meta.status !== 200) {
         userinfo.mg_state = !userinfo.mg_state;
@@ -469,11 +477,35 @@ export default Vue.extend({
       });
     },
     // 删除用户
-    async deleteUserById(id: number) {
+    async deleteUserById() {
+      const result = /* @ts-ignore */ (
+        await this.$http.delete(`users/${this.deleteUserId}`)
+      ).data;
+
+      if (result.meta.status !== 200) {
+        return this.$message.error(result.meta.msg);
+      }
+
+      // 防止删除成功还显示撤销删除消息
+      this.deleteUserId = -1;
+
+      this.deleteDialogVisible = false;
+
+      this.getUserList();
+
+      this.$message.success(result.meta.msg);
+    },
+    // 保存要删除的用户id和打开删除框
+    showDeleteDialog(id: number) {
       this.deleteDialogVisible = true;
+      this.deleteUserId = id;
     },
     // 删除用户关闭去前的回调
     deleteDialogClosed() {
+      if (this.deleteUserId === -1) {
+        return;
+      }
+
       this.$message({
         type: 'info',
         message: '已取消删除',

@@ -1,10 +1,20 @@
-html,body,#app{
-    height: 100%;
+html,
+body,
+#app {
+    height: 100vh;
+}
+
+html,
+body {
+    max-height: 100vh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    min-width: 1000px;
 }
 
 // css3盒子模型
 *,
 *::before,
-*::after{
+*::after {
     box-sizing: border-box;
 }
