@@ -91,6 +91,7 @@
               type="warning"
               icon="el-icon-setting"
               size="mini"
+              @click="setRole(scope.row)"
             ></el-button>
           </el-tooltip>
         </template>
@@ -196,6 +197,35 @@
         <el-button type="primary" @click="deleteUserById" size="mini"
           >确 定</el-button
         >
+      </span>
+    </el-dialog>
+
+    <!-- 分配角色 -->
+    <el-dialog
+      title="分配角色"
+      :visible.sync="setRoleDialogVisible"
+      width="50%"
+      @close="setRoleDialogClosed"
+    >
+      <div>
+        <p>当前用户：{{ userInfo.username }}</p>
+        <p>当前角色：{{ userInfo.role_name }}</p>
+        <p>
+          分配角色：<el-select v-model="selectedRoleId" placeholder="请选择">
+            <el-option
+              v-for="item in rolesList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
       </span>
     </el-dialog>
   </section>
@@ -361,6 +391,14 @@ export default Vue.extend({
       deleteDialogVisible: false,
       // 要删除的用户id
       deleteUserId: 0,
+      // 分配角色对话框是否显示
+      setRoleDialogVisible: false,
+      // 需要被分配角色的用户信息
+      userInfo: {},
+      // 所有角色数据列表
+      rolesList: [],
+      // 选中的角色id
+      selectedRoleId: '',
     };
   },
   created() {
@@ -390,9 +428,9 @@ export default Vue.extend({
     },
     // 监听switch 状态改变
     async userStateChanged(userinfo: any): Promise<any> {
-      const result = // @ts-ignore
-      (await this.$http.put(`users/${userinfo.id}/state/${userinfo.mg_state}`))
-        .data;
+      const result = ( // @ts-ignore
+        await this.$http.put(`users/${userinfo.id}/state/${userinfo.mg_state}`)
+      ).data;
 
       if (result.meta.status !== 200) {
         userinfo.mg_state = !userinfo.mg_state;
@@ -510,6 +548,47 @@ export default Vue.extend({
         type: 'info',
         message: '已取消删除',
       });
+    },
+    // 设置角色
+    async setRole(userInfo: any): Promise<any> {
+      this.userInfo = userInfo;
+
+      // @ts-ignore 获取所有角色列表
+      const result = (await this.$http.get('roles')).data;
+
+      if (result.meta.status !== 200) {
+        return this.$message.error(result.meta.msg);
+      }
+
+      this.rolesList = result.data;
+
+      this.setRoleDialogVisible = true;
+    },
+    // 分配角色
+    async saveRoleInfo(): Promise<any> {
+      if (!this.selectedRoleId) {
+        return this.$message.error('请选择角色！');
+      }
+
+      const result = /* @ts-ignore */ (
+        await this.$http.put(`users/${this.userInfo.id}/role`, {
+          rid: this.selectedRoleId,
+        })
+      ).data;
+
+      if (result.meta.status !== 200) {
+        return this.$message.error(result.meta.msg);
+      }
+
+      this.$message.success(result.meta.msg);
+
+      this.getUserList();
+      this.setRoleDialogVisible = false;
+    },
+    // 分配角色对话框关闭后
+    setRoleDialogClosed() {
+      this.selectedRoleId = '';
+      this.userInfo = {};
     },
   },
 });
